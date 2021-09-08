@@ -30,7 +30,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.List;
 
 
 public class SensorActivity extends FragmentActivity implements SensorEventListener, OnMapReadyCallback, LocationListener {
@@ -41,6 +40,7 @@ public class SensorActivity extends FragmentActivity implements SensorEventListe
     private SensorManager sensorManager;
     private Sensor accelerometer;
 
+    
     private LocationManager locationManager;
     // Handle location changes
     private LocationListener locationListener;
@@ -62,12 +62,18 @@ public class SensorActivity extends FragmentActivity implements SensorEventListe
     ArrayList<Float> accel_y = new ArrayList<Float>();
     ArrayList<Float> accel_z = new ArrayList<Float>();
 
+    final int dt = 100000;
+
     private float average(ArrayList<Float> input) {
         float temp = 0;
         for (int i=0; i<input.size();i++) {
             temp += input.get(i);
         }
     return temp/input.size();
+    }
+
+    private float highpass(ArrayList<Float> input, int delayus, float RC) {
+    return 0;
     }
 
     @Override
@@ -131,7 +137,7 @@ public class SensorActivity extends FragmentActivity implements SensorEventListe
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        sensorManager.registerListener(SensorActivity.this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(SensorActivity.this, accelerometer, dt);
         Log.d(TAG, "OnCreate: Registered accelerometer listener");
     }
 
@@ -163,7 +169,7 @@ public class SensorActivity extends FragmentActivity implements SensorEventListe
             x = average(accel_x);
             y = average(accel_y);
             z = average(accel_z);
-            Log.d(TAG, "OnSensorChanged: X" + x + " Y:" + y + " Z:" + z);
+            Log.d(TAG, "OnSensorChanged: X:" + x + " Y:" + y + " Z:" + z);
 
             xValue.setText("xValue:" + x);
             yValue.setText("yValue:" + y);
