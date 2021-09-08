@@ -28,6 +28,10 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class SensorActivity extends FragmentActivity implements SensorEventListener, OnMapReadyCallback, LocationListener {
 
@@ -53,6 +57,18 @@ public class SensorActivity extends FragmentActivity implements SensorEventListe
     double longi = 6.879420; // 6.879420
     LatLng latLng = new LatLng (lat, longi);
     LatLng[] coordinates_total;
+
+    ArrayList<Float> accel_x = new ArrayList<Float>();
+    ArrayList<Float> accel_y = new ArrayList<Float>();
+    ArrayList<Float> accel_z = new ArrayList<Float>();
+
+    private float average(ArrayList<Float> input) {
+        float temp = 0;
+        for (int i=0; i<input.size();i++) {
+            temp += input.get(i);
+        }
+    return temp/input.size();
+    }
 
     @Override
     public final void onCreate(Bundle savedInstanceState) {
@@ -129,12 +145,24 @@ public class SensorActivity extends FragmentActivity implements SensorEventListe
 
     @Override
     public final void onSensorChanged(SensorEvent event) {
+        float x;
+        float y;
+        float z;
 
-        float x = Math.round(event.values[0]);
-        float y = Math.round(event.values[1]);
-        float z = Math.round(event.values[2]);
+        accel_x.add(event.values[0]);
+        accel_y.add(event.values[1]);
+        accel_z.add(event.values[2]);
+
+        if(accel_x.size() > 5) {
+            accel_x.remove(0);
+            accel_y.remove(0);
+            accel_z.remove(0);
+        }
 
         if (running == true) {
+            x = average(accel_x);
+            y = average(accel_y);
+            z = average(accel_z);
             Log.d(TAG, "OnSensorChanged: X" + x + " Y:" + y + " Z:" + z);
 
             xValue.setText("xValue:" + x);
