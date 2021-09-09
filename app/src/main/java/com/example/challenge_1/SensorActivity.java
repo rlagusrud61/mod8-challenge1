@@ -59,7 +59,7 @@ public class SensorActivity extends FragmentActivity implements SensorEventListe
     // Front-End components
     TextView xValue, yValue, zValue, introText1, introText2, introText3;
     ImageButton startButton;
-    Button again;
+    ImageButton again;
     LinearLayout linearLayout;
 
     // If app is running or if its on pause
@@ -68,6 +68,7 @@ public class SensorActivity extends FragmentActivity implements SensorEventListe
     Boolean requested = true;
 
     private MapView mapView;
+    private boolean cameraset = false;
     private static final String MAPVIEW_BUNDLE_KEY = "MapViewBundleKey";
 
     double lat = 0; // 52.213453
@@ -94,13 +95,9 @@ public class SensorActivity extends FragmentActivity implements SensorEventListe
     ArrayList<Double> lat_total = new ArrayList<Double>();
     ArrayList<Double> longi_total = new ArrayList<Double>();
 
-    //FirebaseStorage storage = FirebaseStorage.getInstance();
-    //StorageReference storageRef = storage.getReference();
-    // Create a child reference
-    // imagesRef now points to "images"
-    //StorageReference coordinates = storageRef.getParent().child("SensorActivity");
-
-
+    /**
+     * Creates a JsonObject of the location
+     * */
     private JSONObject locationsToJSON(ArrayList<Double> lat_total, ArrayList<Double> longi_total){
         JSONObject locationObject = new JSONObject();
         JSONArray lat_array = new JSONArray();
@@ -145,7 +142,7 @@ public class SensorActivity extends FragmentActivity implements SensorEventListe
         yValue = (TextView) findViewById(R.id.yValue);
 
         startButton = (ImageButton) findViewById(R.id.startButton);
-        again = (Button) findViewById(R.id.again);
+        again = (ImageButton) findViewById(R.id.again);
         linearLayout = findViewById(R.id.layout);
 
         // initialize ScreenReceiver for tracking screen state changes
@@ -243,6 +240,7 @@ public class SensorActivity extends FragmentActivity implements SensorEventListe
 
     @Override
     public void onLocationChanged(Location location) {
+
         if (requested) {
             lat = location.getLatitude();
             longi = location.getLongitude();
@@ -252,17 +250,13 @@ public class SensorActivity extends FragmentActivity implements SensorEventListe
             requested = false;
         }
         if (mapView.getVisibility() == View.VISIBLE) {
-            float zoomLevel = 15f;
-            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, longi), zoomLevel));
-            // GET THE ONES FROM THE CLOUD AND CHANGE THEIR COLOR TO BLUE?
-
-
-            // SEND ALL THE LAT AND LONGI TO THE CLOUD
-            locationsToJSON(lat_total,longi_total);
-
+            if (!cameraset) {
+                float zoomLevel = 15f;
+                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, longi), zoomLevel));
+                cameraset = true;
+            }
         }
     }
-
 
     @Override
     public final void onAccuracyChanged(Sensor sensor, int accuracy) {
@@ -318,15 +312,15 @@ public class SensorActivity extends FragmentActivity implements SensorEventListe
                         speedbump = false;
                         startTime = true;
                     } else {
-                        if (speedbump) yValue.setText("speedbump");
-                        if (anomaly) yValue.setText("anomaly");
+                        if (speedbump) yValue.setText("Speedbump");
+                        if (anomaly) yValue.setText("Anomaly");
                     }
                 } else {
                     firstDetection = mag > sensitivity;
                     yValue.setText("");
                 }
 
-                xValue.setText("magnitude - gravity: " + mag);
+                xValue.setText("Detecting...");
             }
         }
     }
@@ -390,5 +384,7 @@ public class SensorActivity extends FragmentActivity implements SensorEventListe
     public void onStatusChanged(String provider, int status, Bundle extras) {
 
     }
+
+
 
 };
