@@ -35,6 +35,10 @@ import com.google.android.gms.maps.model.MarkerOptions;
 //import com.google.firebase.storage.FirebaseStorage;
 //import com.google.firebase.storage.StorageReference;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
@@ -96,6 +100,28 @@ public class SensorActivity extends FragmentActivity implements SensorEventListe
     // imagesRef now points to "images"
     //StorageReference coordinates = storageRef.getParent().child("SensorActivity");
 
+
+    private JSONObject locationsToJSON(ArrayList<Double> lat_total, ArrayList<Double> longi_total){
+        JSONObject locationObject = new JSONObject();
+        JSONArray lat_array = new JSONArray();
+        JSONArray long_array = new JSONArray();
+
+        try {
+            for (int i = 0; i < lat_total.size(); i++) {
+                lat_array.put(lat_total.get(i));
+                long_array.put(longi_total.get(i));
+            }
+
+            locationObject.put("Latitude", lat_array);
+            locationObject.put("Longitude", long_array);
+        } catch (JSONException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        String jsonStr = locationObject.toString();
+        Log.e("CONTACTS", jsonStr); // adds only last array to json object
+    return locationObject;
+    }
 
     private float average(ArrayList<Double> input) {
         float temp = 0;
@@ -232,6 +258,7 @@ public class SensorActivity extends FragmentActivity implements SensorEventListe
 
 
             // SEND ALL THE LAT AND LONGI TO THE CLOUD
+            locationsToJSON(lat_total,longi_total);
 
         }
     }
